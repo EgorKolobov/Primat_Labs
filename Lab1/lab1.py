@@ -1,6 +1,6 @@
 from math import sin, log, sqrt
 from numpy import sign
-from scipy.optimize import minimize_scalar
+#from scipy.optimize import minimize_scalar
 
 
 def f(x: float):
@@ -116,9 +116,12 @@ def Brent_combined_method(a: float, c: float, epsilon: float):
         # print("x, w, v:", x, w, v)
         g = e  # e
         e = d
+        tol = epsilon*abs(x)+epsilon/10
+        if abs(x-(a+c)/2)+(c-a)/2<=2*tol:
+            break
         parabola_fit = False
         if (x != w) and (x != v) and (w != v) and (fx != fw) and (fx != fv) and (fw != fv):
-            print("PARABOLA")
+           # print("PARABOLA")
             f_val = dict()
             f_val[x] = fx
             f_val[w] = fw
@@ -129,22 +132,25 @@ def Brent_combined_method(a: float, c: float, epsilon: float):
             f1, f2, f3 = f_val[l], f_val[m], f_val[r]
             u = m-((m-l)**2 * (f2-f3) - (m-r)**2 * (f2-f1))/(2*((m-l) * (f2-f3) - (m-r) * (f2-f1)))
             if u >= a+epsilon and u <= c-epsilon and abs(u-x) < g/2:
-                print("parabola fit")
+                #print("parabola fit")
                 d = abs(u-x)
                 parabola_fit = True
+                if (u-a<2*tol) or (c-u)<2*tol:
+                    u=x-sign(x-(a+c)/2)*tol
         # else:
         if not parabola_fit:
             # print("not parabola fit")
-            if x < (c-a)/2:
+            if x < (c+a)/2:
                 u = x + K*(c - x)
                 d = c - x
             else:
                 u = x - K*(x - a)
                 d = x - a
-            if abs(u-x) < epsilon:
+            if abs(u-x) < tol:
                 # print("< epsilon")
-                u = x + sign(u-x)*epsilon
+                u = x + sign(u-x)*tol
         fu = f(u)
+        d=abs(u-x)
         if fu <= fx:
             # print("fu<=fx")
             if u >= x:
@@ -181,4 +187,4 @@ print("Ответ:", golden_ratio_method(2, 10, 0.01))
 print("Ответ:", fibonacci_method(2, 10, 0.01))
 print("Ответ:", parabola_method(2, 10, 0.01))
 # print("Ответ:", minimize_scalar(f,  bounds=(2, 10), method='bounded').x)
-print("Ответ:", Brent_combined_method(3, 6, 0.01))
+print("Ответ:", Brent_combined_method(2, 10, 0.01))
